@@ -1,0 +1,16 @@
+service: alexa-metro-status 
+provider:
+  name: aws
+  runtime: java8
+  stage: v1
+  region: us-east-1
+package:
+  artifact: target/scala-2.11/alexa-metro-status.jar
+functions:
+  status:
+    handler: org.uncompiled.alexa.Handler
+    events:
+      - http:
+          integration: lambda
+          method: get
+          path: status
