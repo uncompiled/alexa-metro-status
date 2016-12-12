@@ -42,7 +42,7 @@ class Handler extends RequestHandler[Request, Response] {
     val updateDate = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'.0Z'").format(Calendar.getInstance().getTime())
     val titleText = "DC Metro Status"
     val mainText = speechText
-    val redirectionUrl = "https://goo.gl/Dvsv3R"
+    val redirectionUrl = "https://goo.gl/jt0Hzq"
 
     new Response(uid, updateDate, titleText, mainText, redirectionUrl)
   }
