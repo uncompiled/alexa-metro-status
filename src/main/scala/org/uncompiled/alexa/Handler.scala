@@ -7,17 +7,20 @@ import scala.xml.XML
 import com.amazonaws.services.lambda.runtime.{Context, RequestHandler}
 
 class Handler extends RequestHandler[Request, Response] {
+  type AffectedLines = Set[String]
+
   def handleRequest(input: Request, context: Context): Response = {
     val xml = XML.load("http://www.metroalerts.info/rss.aspx?rs")
     val incidents = (xml \\ "item")
-    val affectedLines : Set[String] = incidents.map(i => (i \\ "title").text).toSet
+    val affectedLines : AffectedLines = incidents.map(i => (i \\ "title").text).toSet
 
     def affectedLinesText() : String = {
       val ALL_LINES = 6 // Metro currently has 6 rail lines
       affectedLines.size match {
-        case 0 => "Surprise! There are no incidents on the Metro rail system."
         case ALL_LINES => "Oh my. All lines are currently impacted by delays."
-        case _ =>  s"There are incidents on the ${affectedLines.mkString(", ")} lines."
+        case 0 => "Surprise! There are no incidents on the Metro rail system."
+        case 1 => s"There are incidents on the ${affectedLines.mkString} line."
+        case _ =>  s"There are incidents on the ${speak(affectedLines)} lines."
       }
     }
 
@@ -43,6 +46,12 @@ class Handler extends RequestHandler[Request, Response] {
 
     new Response(uid, updateDate, titleText, mainText, redirectionUrl)
   }
+
+  /* speak takes a set of affected lines and outputs speech text as a string
+   * @param affectedLines set of rail lines with incidents
+   */
+  def speak(affectedLines: AffectedLines): String =
+    s"${affectedLines.init.mkString(", ")} and ${affectedLines.last}"
 
   /* transformWMATAShorthand replaces WMATA shorthand text with words that sound more natural for speech
    * @param input speech text string
